@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="/html/css/phone.css" />
+     <script type="text/javascript" language="JavaScript">
+         var i, j, IsOver, Size = 5, StartTime, EndTime, Moves, IsRepeat;
+
+         Pic = new Array(2);
+         Pic[0] = new Image(); Pic[0].src = "lightsout0.jpg";
+         Pic[1] = new Image(); Pic[1].src = "lightsout1.jpg";
+
+         Fld = new Array(Size);
+         for (i = 0; i < Size; i++) Fld[i] = new Array(Size);
+
+         PreFld = new Array(Size);
+         for (i = 0; i < Size; i++) PreFld[i] = new Array(Size);
+
+         function SwitchFld(ii, jj) {
+             if (ii < 0) return (false);
+             if (ii >= Size) return (false);
+             if (jj < 0) return (false);
+             if (jj >= Size) return (false);
+             Fld[ii][jj] = 1 - Fld[ii][jj];
+             return (true);
+         }
+
+         function Init(IsNew) {
+             var ii, jj, nn;
+             if (IsNew) {
+                 for (ii = 0; ii < Size; ii++) {
+                     for (jj = 0; jj < Size; jj++) Fld[ii][jj] = 0;
+                 }
+                 for (nn = 0; nn < 19; nn++) {
+                     ii = Math.floor(Math.random() * Size);
+                     jj = Math.floor(Math.random() * Size);
+                     SwitchFld(ii - 1, jj);
+                     SwitchFld(ii + 1, jj);
+                     SwitchFld(ii, jj - 1);
+                     SwitchFld(ii, jj + 1);
+                     SwitchFld(ii, jj);
+                 }
+                 for (ii = 0; ii < Size; ii++) {
+                     for (jj = 0; jj < Size; jj++) PreFld[ii][jj] = Fld[ii][jj];
+                 }
+                 IsRepeat = false;
+             }
+             else {
+                 for (ii = 0; ii < Size; ii++) {
+                     for (jj = 0; jj < Size; jj++) Fld[ii][jj] = PreFld[ii][jj];
+                 }
+                 IsRepeat = true;
+             }
+             IsOver = false;
+             NMoves = 0;
+             RefreshScreen(1);
+             Now = new Date();
+             StartTime = Now.getTime() / 1000;
+         }
+
+         function Clicked(ii, jj) {
+             if (SwitchFld(ii - 1, jj)) RefreshPic(ii - 1, jj);
+             if (SwitchFld(ii + 1, jj)) RefreshPic(ii + 1, jj);
+             if (SwitchFld(ii, jj - 1)) RefreshPic(ii, jj - 1);
+             if (SwitchFld(ii, jj + 1)) RefreshPic(ii, jj + 1);
+             if (SwitchFld(ii, jj)) RefreshPic(ii, jj);
+             if (IsOver) return;
+             NMoves++;
+             OverTest();
+         }
+
+         function OverTest() {
+             var ii, jj, nn = 0;
+             for (ii = 0; ii < Size; ii++) {
+                 for (jj = 0; jj < Size; jj++) nn += Fld[ii][jj];
+             }
+             if (nn > 0) return;
+             IsOver = true
+             Now = new Date();
+             EndTime = Now.getTime() / 1000;
+             nn = Math.floor(EndTime - StartTime);
+             if (!IsRepeat) {
+                 if (window.opener) {
+                     if (window.opener.SetHighscores)
+                         window.opener.SetHighscores("LightsOut", "", nn, -1);
+                 }
+             }
+             alert("Super, you solved this game with " + NMoves + " moves in " + nn + " seconds !");
+         }
+
+         function RefreshPic(ii, jj) {
+             window.document.images[Size * jj + ii].src = Pic[Fld[ii][jj]].src;
+         }
+
+         function RefreshScreen() {
+             var ii, jj;
+             for (ii = 0; ii < Size; ii++) {
+                 for (jj = 0; jj < Size; jj++)
+                     window.document.images[Size * jj + ii].src = Pic[Fld[ii][jj]].src;
+             }
+         }
+
+         function Help() {
+             alert("When you click on a lightbulb the lichtbulb and its" +
+                 "\nneighbouring lightbulbs change." +
+                 "\nClick on the lightbulbs until all lights are out." +
+                 "\nGood luck!" +
+             "\n\n\nRead the following only when you tried a long time" +
+                 "\nby yourself and could not solve it!!!" +
+             "\n\n\nHint:" +
+                 "\nClick until you found a configuration which has a" +
+                 "\ndiagonal symmetry axis. After that click always the" +
+                 "\nsame on both sides of the diagonal symmetry axis." +
+                 "\nThis keeps the symmetry until you find a solution.");
+         }
+</script>
+</head>
+   <body>
+
+<br>
+<table align="center" border=2 cellpadding=0 cellspacing=1 bgcolor=#CCCCCC>
+<tbody><tr>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(0,0)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(1,0)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(2,0)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(3,0)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(4,0)"></td>
+</tr>
+<tr>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(0,1)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(1,1)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(2,1)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(3,1)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(4,1)"></td>
+</tr>
+<tr>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(0,2)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(1,2)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(2,2)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(3,2)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(4,2)"></td>
+</tr>
+<tr>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(0,3)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(1,3)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(2,3)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(3,3)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(4,3)"></td>
+</tr>
+<tr>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(0,4)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(1,4)"></td>
+<td><img src="lightsout1.jpg" border="0" onmousedown="Clicked(2,4)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(3,4)"></td>
+<td><img src="lightsout0.jpg" border="0" onmousedown="Clicked(4,4)"></td>
+</tr>
+
+</tbody>
+</table>
+<br>
+<table noborder>
+<tr>
+<td><form><input type=button value="&nbsp;&nbsp;New&nbsp;&nbsp;" width=100 style="width:100" onClick="javascript: Init(true)"></form></td>
+<td><form><input type=button value="Repeat" width=100 style="width:100" onClick="javascript: Init(false)"></form></td>
+<td><form><input type=button value="&nbsp;Help&nbsp;" width=100 style="width:100" onClick="javascript: Help()"></form></td>
+</tr>
+</table>
+
+<script type="text/javascript" language="JavaScript">
+    Init(true);
+</script>
+</body>
+</html>

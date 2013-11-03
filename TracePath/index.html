@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="/html/css/phone.css" />
+        <script type="text/javascript" src="fullhouse.js"></script>
+<script type="text/javascript" language="JavaScript">
+    var m, n, I_Sel, J_Sel, Size = 7, PuzzleNo = 1, StartTime, EndTime, IsHint, I_Hint, J_Hint;
+    Fld = new Array(Size);
+    for (n = 0; n < Size; n++) {
+        Fld[n] = new Array(Size);
+    }
+    Pic = new Array(8);
+    for (n = 0; n < 8; n++) {
+        Pic[n] = new Image();
+        Pic[n].src = "fullhouse" + n + ".jpg";
+    }
+    function Init(nn) {
+        var ii, jj, cc, dd;
+        if (nn > 0) { PuzzleNo = parseInt(nn); IsHint = false; }
+        ss = Math.sqrt(Puzzle[PuzzleNo - 1].length);
+        dd = Math.floor((Size - ss) / 2);
+        for (ii = 0; ii < Size; ii++) {
+            for (jj = 0; jj < Size; jj++) Fld[ii][jj] = -2;
+        }
+        I_Hint = -1;
+        for (ii = 0; ii < ss; ii++) {
+            for (jj = 0; jj < ss; jj++) {
+                cc = Puzzle[PuzzleNo - 1].charAt(jj * ss + ii);
+                if (cc == "+") Fld[ii + dd][jj + dd] = -1;
+                else Fld[ii + dd][jj + dd] = 0;
+                if (cc == "o") {
+                    I_Hint = ii + dd;
+                    J_Hint = jj + dd;
+                }
+            }
+        }
+        I_Sel = -1;
+        RefreshScreen();
+        if (nn > 0) {
+            Now = new Date();
+            StartTime = Now.getTime() / 1000;
+        }
+    }
+    function Clicked(ii, jj) {
+        var ddi = 0, ddj = 0, nn;
+        if (Fld[ii][jj] != 0) return;
+        if (I_Sel < 0) {
+            I_Sel = ii;
+            J_Sel = jj;
+            Fld[I_Sel][J_Sel] = 1;
+            RefreshPic(I_Sel, J_Sel);
+            return;
+        }
+        if (ii > I_Sel) ddi = 1;
+        if (ii < I_Sel) ddi = -1;
+        if (jj > J_Sel) ddj = 1;
+        if (jj < J_Sel) ddj = -1;
+        if ((ddi != 0) && (ddj != 0)) return;
+        if (ddi > 0) {
+            while (IsEmpty(I_Sel + 1, J_Sel)) {
+                Fld[I_Sel][J_Sel] = 2;
+                RefreshPic(I_Sel, J_Sel);
+                I_Sel++;
+            }
+        }
+        if (ddj > 0) {
+            while (IsEmpty(I_Sel, J_Sel + 1)) {
+                Fld[I_Sel][J_Sel] = 3;
+                RefreshPic(I_Sel, J_Sel);
+                J_Sel++;
+            }
+        }
+        if (ddi < 0) {
+            while (IsEmpty(I_Sel - 1, J_Sel)) {
+                Fld[I_Sel][J_Sel] = 4;
+                RefreshPic(I_Sel, J_Sel);
+                I_Sel--;
+            }
+        }
+        if (ddj < 0) {
+            while (IsEmpty(I_Sel, J_Sel - 1)) {
+                Fld[I_Sel][J_Sel] = 5;
+                RefreshPic(I_Sel, J_Sel);
+                J_Sel--;
+            }
+        }
+        Fld[I_Sel][J_Sel] = 1;
+        RefreshPic(I_Sel, J_Sel);
+        nn = 0;
+        for (ddi = 0; ddi < Size; ddi++) {
+            for (ddj = 0; ddj < Size; ddj++) {
+                if (Fld[ddi][ddj] == 0) nn++;
+            }
+        }
+        Now = new Date();
+        EndTime = Now.getTime() / 1000;
+        if (nn > 0) {
+            if (IsEmpty(I_Sel + 1, J_Sel)) return;
+            if (IsEmpty(I_Sel, J_Sel + 1)) return;
+            if (IsEmpty(I_Sel - 1, J_Sel)) return;
+            if (IsEmpty(I_Sel, J_Sel - 1)) return;
+            if (EndTime - StartTime >= 600) {
+                if ((!IsHint) && (I_Hint >= 0)) {
+                    if (confirm("Do you want a hint?")) IsHint = true;
+                }
+                Init(0);
+                if (IsHint) Clicked(I_Hint, J_Hint);
+                return;
+            }
+            if (nn < 5) return;
+            if (confirm("Ooops! Try again?")) Init(0);
+            return;
+        }
+        nn = Math.floor(EndTime - StartTime);
+        if (PuzzleNo < nPuzzles) {
+            if (confirm("Super, you solved this game in " + nn + " seconds !\nDo you want to try the next puzzle ?")) {
+                document.forms[0].PuzzleSelect.selectedIndex = PuzzleNo;
+                Init(PuzzleNo + 1);
+            }
+        }
+        else
+            alert("Super, you solved this game in " + nn + " seconds !");
+    }
+    function IsEmpty(ii, jj) {
+        if (ii < 0) return (false);
+        if (ii >= Size) return (false);
+        if (jj < 0) return (false);
+        if (jj >= Size) return (false);
+        if (Fld[ii][jj] != 0) return (false);
+        return (true);
+    }
+    function RefreshPic(ii, jj) {
+        document.images[jj * Size + ii].src = Pic[Fld[ii][jj] + 2].src;
+    }
+    function RefreshScreen() {
+        var ii, jj;
+        for (ii = 0; ii < Size; ii++) {
+            for (jj = 0; jj < Size; jj++)
+                document.images[jj * Size + ii].src = Pic[Fld[ii][jj] + 2].src;
+        }
+    }
+    function ShowHelp() {
+        alert("This puzzle was invented in 2004 by Erich Friedman (www.stetson.edu/~efriedma)." +
+        "\nFirst click on an empty square to mark your starting position. After that click on" +
+        "\na square to move the ball in horizontal or vertical direction. A game is solved," +
+        "\nwhen no square on the grid remains empty." +
+        "\nGood luck!");
+    }
+</script>
+</head>
+   <body background="back.png" align="center" style="width: 319px; height: 512px">
+
+<form>
+<table border=0><tr><th>
+<table border=0 cellpadding=0 cellspacing=0><tr>
+
+<td>
+<nobr><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(0,0)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(1,0)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(2,0)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(3,0)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(4,0)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(5,0)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(6,0)"></nobr><br>
+<nobr><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(0,1)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(1,1)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(2,1)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(3,1)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(4,1)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(5,1)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(6,1)"></nobr><br>
+<nobr><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(0,2)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(1,2)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(2,2)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(3,2)"><img src="fullhouse1.jpg" border="0" onmousedown="Clicked(4,2)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(5,2)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(6,2)"></nobr><br>
+<nobr><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(0,3)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(1,3)"><img src="fullhouse1.jpg" border="0" onmousedown="Clicked(2,3)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(3,3)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(4,3)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(5,3)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(6,3)"></nobr><br>
+<nobr><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(0,4)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(1,4)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(2,4)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(3,4)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(4,4)"><img src="fullhouse1.jpg" border="0" onmousedown="Clicked(5,4)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(6,4)"></nobr><br>
+<nobr><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(0,5)"><img src="fullhouse1.jpg" border="0" onmousedown="Clicked(1,5)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(2,5)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(3,5)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(4,5)"><img src="fullhouse2.jpg" border="0" onmousedown="Clicked(5,5)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(6,5)"></nobr><br>
+<nobr><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(0,6)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(1,6)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(2,6)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(3,6)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(4,6)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(5,6)"><img src="fullhouse0.jpg" border="0" onmousedown="Clicked(6,6)"></nobr><br>
+
+</td>
+</tr>
+</table>
+</th></tr>
+<tr><th>
+<table border=2 cellpadding=0 cellspacing=3 width=100%>
+<tr>
+<th><SELECT name=PuzzleSelect onChange="Init(this.options[selectedIndex].value)" SIZE=1>
+<script language="JavaScript">
+    document.open();
+    for (n = 1; n <= nPuzzles; n++)
+        document.writeln("<OPTION VALUE=" + n + ">Puzzle " + n);
+    document.close();
+</script>
+</SELECT>
+</th>
+<th><input type=button value="Restart" width=66 style="width:66" onClick="javascript: Init(0)"></th>
+<th><input type=button value="Help" width=48 style="width:48" onClick="javascript: ShowHelp()"></th>
+</tr>
+</table>
+</th></tr></table>
+</form>
+
+<script language="JavaScript">
+    Init(1);
+</script>
+</body>
+
+</html>
